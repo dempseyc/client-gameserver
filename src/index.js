@@ -53,7 +53,8 @@ function handleMessages (e) {
 function updateMessagesList(message) {
     let new_message = document.createElement('li');
     new_message.innerHTML = `<span>${message.sender}: ${message.text}</span>`;
-    messages_list.appendChild(new_message);
+    messages_list.prepend(new_message);
+    // scroll to bottom after timer goes off
 }
 
 function updateClientList(message) {
@@ -88,8 +89,8 @@ let myNum = null;
 
 //cache dom
 let board = document.getElementById('board');
-let oppData = document.getElementById('opponent');
-let avtData = document.getElementById('avatar');
+let oppArea = document.getElementById('opponent');
+let avtArea = document.getElementById('avatar');
 let cardContainer = document.getElementsByClassName('card-container')[0];
 let cards = [];
 let chosenC = null;
@@ -98,11 +99,11 @@ let cardColor = ()=>colors[myNum-1];
 let bombPlaced = false;
 let bombReady = false;
 
-avtData.addEventListener('click', () => {
+avtArea.addEventListener('click', () => {
     if (!gameOn) {
         registerPlayer();
     }
-    // updateAvtData();
+    // updateAvtArea();
  });
 
 function registerPlayer() {
@@ -122,10 +123,10 @@ function handleGameMessages(message) {
             playerList.push(message.sender);
             if (message.sender == clientId) {
                 myNum = 1;
-                updateAvtData('join',message.sender,myNum);
-                updateAvtData('my_turn');
+                updateAvtArea('join',message.sender,myNum);
+                updateAvtArea('my_turn');
             } else {
-                updateOppData('join',message.sender,1);
+                updateOppArea('join',message.sender,1);
             }
             break;
         case 'join2':
@@ -133,9 +134,9 @@ function handleGameMessages(message) {
             console.log(playerList);
             if (message.sender == clientId) {
                 myNum = 2;
-                updateAvtData('join',message.sender,myNum);
+                updateAvtArea('join',message.sender,myNum);
             } else {
-                updateOppData('join',message.sender,2);
+                updateOppArea('join',message.sender,2);
             }
             if (playerList[0] === clientId) {
                 let m = {
@@ -151,44 +152,44 @@ function handleGameMessages(message) {
             playerList = message.players;
             if (playerList.length === 2) {
                 console.log('plist2');
-                updateAvtData('reject',playerList[0],1);
-                updateOppData('reject',playerList[1],2);
+                updateAvtArea('reject',playerList[0],1);
+                updateOppArea('reject',playerList[1],2);
                 gameOn = true;
             }
             if (playerList.length === 1) {
                 console.log('plist1');
-                updateOppData('join',playerList[0],1);
+                updateOppArea('join',playerList[0],1);
             }
             break;
         case 'try later.':
-            updateAvtData('reject',playerList[0],1);
-            updateOppData('reject',playerList[1],2);
+            updateAvtArea('reject',playerList[0],1);
+            updateOppArea('reject',playerList[1],2);
             break;
         case 'start':
             updateBoard();
             break;
         case 'board':
             updateBoard(message.data);
-            updateAvtData('my_turn');
+            updateAvtArea('my_turn');
             break;
         case 'disable':
             bombPlaced = false;
             bombReady = false;
             console.log('disabled')
             updateBoard(message.data);
-            updateAvtData('my_turn');
+            updateAvtArea('my_turn');
             break;
         case 'cards':
             cards = message.data;
-            updateAvtData('cards');
+            updateAvtArea('cards');
             break;
         case 'win':
             message.text = message.data
             updateMessagesList(message);
         case 'reset':
             updateBoard();
-            updateAvtData('reset');
-            updateOppData('reset');
+            updateAvtArea('reset');
+            updateOppArea('reset');
             playerList = [];
             gameOn = false;
             break;
@@ -197,24 +198,24 @@ function handleGameMessages(message) {
     }
 }
 
-function updateAvtData(uType,player,playerNum) {
+function updateAvtArea(uType,player,playerNum) {
     switch (uType) {
         case 'join':
-            avtData.innerHTML = `<span>${player} as Player${playerNum}</span>`;
+            avtArea.innerHTML = `<span>${player} as Player${playerNum}</span>`;
             updateCardContainer();
             break;
         case 'reject':
-            avtData.innerHTML = `<span>${player} as Player${playerNum}</span>`;
+            avtArea.innerHTML = `<span>${player} as Player${playerNum}</span>`;
             break;
         case 'reset':
-            avtData.innerHTML = `<span>click to play</span>`;
+            avtArea.innerHTML = `<span>click to play</span>`;
             break;
         case 'cards':
             updateCardContainer('cards');
             break;
         case 'my_turn':
             myTurn = myTurn ? false : true;
-            myTurn ? avtData.classList.add('my-turn') : avtData.classList.remove('my-turn');
+            myTurn ? avtArea.classList.add('my-turn') : avtArea.classList.remove('my-turn');
             break;
         default:
             console.log('unknown');
@@ -222,16 +223,16 @@ function updateAvtData(uType,player,playerNum) {
     }
 }
 
-function updateOppData(uType,player,playerNum) {
+function updateOppArea(uType,player,playerNum) {
     switch (uType) {
         case 'join':
-            oppData.innerHTML = `<span>${player} as Player${playerNum}</span>`;
+            oppArea.innerHTML = `<span>${player} as Player${playerNum}</span>`;
             break;
         case 'reject':
-            oppData.innerHTML = `<span>${player} as Player${playerNum}</span>`;
+            oppArea.innerHTML = `<span>${player} as Player${playerNum}</span>`;
             break;
         case 'reset':
-            oppData.innerHTML = `<span>waiting for opponent...</span>`;
+            oppArea.innerHTML = `<span>waiting for opponent...</span>`;
             break;
         default:
             console.log('unknown');
@@ -263,22 +264,14 @@ function updateBoard(boardArr = 'blank') {
     }
 }
 
-function returnCard(card) {
-    let cardFromBoard = document.getElementById(card);
-    cardFromBoard.classList.remove('nodisplay');
-}
+// forget why this was here
+// function returnCard(card) {
+//     let cardFromBoard = document.getElementById(card);
+//     cardFromBoard.classList.remove('nodisplay');
+// }
 
 function buildBoard() {
     listenSquares();
-    // let cols = ['0','1','2','3','4'];
-    // let rows = ['0','1','2','3','4'];
-    // let square = (r,c) => {
-    //     let id = `s-${r}${c}`;
-    //     return `<div class ="square" id="${id}"></div>`
-    // }
-    // let grid = rows.map( (r) => cols.map( (c) => square(`${r}${c}`) ) );
-    // let squares = grid.map( (r) => r.join('') ).join('');
-    // board.innerHTML = squares;
     console.log("board ready");
 }
 
@@ -286,7 +279,7 @@ function updateCardContainer(change, idx) {
     if (!cardContainer) {
         cardContainer = document.createElement('div');
         cardContainer.classList.add('card-container');
-        avtData.appendChild(cardContainer);
+        avtArea.appendChild(cardContainer);
         // console.log(cardContainer);
     } else {
         switch(change) {
