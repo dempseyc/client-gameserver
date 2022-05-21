@@ -1,0 +1,32 @@
+{
+  "name": "ttt-hit-pow-client",
+  "version": "1.0.0",
+  "description": "for python gameserver",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch",
+    "start": "webpack-dev-server --open",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dempseyc/client-gameserver.git"
+  },
+  "author": "craig dempsey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dempseyc/client-gameserver/issues"
+  },
+  "homepage": "https://github.com/dempseyc/client-gameserver#readme",
+  "devDependencies": {
+    "css-hot-loader": "^1.4.4",
+    "css-loader": "^6.7.1",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.6.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.9.0"
+  }
+}
