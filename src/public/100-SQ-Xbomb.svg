@@ -499,6 +499,6 @@
     <path
        id="path862"
        d="M 0,0 H 30 C 40,0 40,10 50,10 60,10 60,0 70,0 h 30 v 30 c 0,10 -10,10 -10,20 0,10 10,10 10,20 v 30 H 70 C 60,100 60,90 50,90 40,90 40,100 30,100 H 0 V 70 C 0,60 10,60 10,50 10,40 0,40 0,30 Z"
-       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:#c00000;fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>
