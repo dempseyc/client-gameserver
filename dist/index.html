@@ -5,14 +5,19 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@900&family=Rubik:wght@900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@900&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="./style.css">
-        <title>WebSocket demo</title>
+        <title>py websockets demo</title>
     </head>
     <body>
     <div class="wrapper-1">
-        <div class="header"><h1>TTT-BOOM-POW</h1></div>
+        <div class="header">
+            <h1>TTT-HIT-POW</h1>
+            <div class="fab fab-left"><button class="info-button"></button></div>
+            <div class="fab fab-right"><button class="bubble speech room-chat-toggle game-mode">chat</button></div>
+        </div>
         <div class="game-area">
+            <div class="new-message-flash"></div>
             <div id="opponent"><span>waiting for opponent...</span></div>
             <div id="board">
                 <div class="square" id="s-00"></div>
@@ -44,18 +49,45 @@
             <div id="avatar"><span>click to play</span></div>
         </div> <!--game-area-->
     </div> <!--wrapper-1-->
-    <div class="wrapper-2 drawer-open">
-        <button class="room-chat-toggle"></button>
+    <div class="wrapper-2 drawer-closed">
+        <!-- <button class="room-chat-toggle">... chat ...</button> -->
         <div class="room-chat-area">
             <form id="room-chat-form">
-                <input name="room-chat-message" type="text">
-                <button name="submit" type="submit">•••></button>
+                <input name="room-chat-message" class="room-chat-message" type="text">
+                <button name="submit" type="submit"></button>
             </form>
             <label id="room-status">PLEASE WAIT...</label>
             <ul id="room-list"></ul>
-            <ul id="room-chat-messages"></li></ul>
+            <ul id="room-chat-messages"></ul>
         </div> <!--chat area-->
-    </div> <!--wrapper-2-->
-    <script src="main.js"></script>
+    </div> <!--wrapper-2 end-->
+    <div class="wrapper-3">
+        <div class="info hide height-0">
+            <p class="c0 c3"><span class="c1"></span></p>
+            <p class="c0"><span class="c1">Win by placing your mark 5 in a row, Vertical, Horizontal, or Diagonal through the
+                    center of the 5x5 grid.</span></p>
+            <p class="c0 c3"><span class="c1"></span></p>
+            <p class="c0"><span class="c1">There are 3 types of &#39;tiles&#39; :</span></p>
+            <p class="c0"><span class="c1">&bull; &#39;TTT&#39; <img src="./public/100-SQ-X.svg" class="svg-icon" alt="X"/> or <img src="./public/100-SQ-O.svg" class="svg-icon" alt="O"/>, can take an unoccupied square</span></p>
+            <p class="c0"><span class="c1">&bull; &#39;HIT&#39; <img src="./public/100-SQ-XoverO.svg" class="svg-icon" alt="X over O"/> or <img src="./public/100-SQ-OoverX.svg" class="svg-icon" alt="O over X"/>, can steal an occupied square</span></p>
+            <p class="c0"><span class="c1">&bull; &#39;POW&#39; <img src="./public/100-SQ-Xbomb.svg" class="svg-icon" alt="X bomb"/> or <img src="./public/100-SQ-Obomb.svg" class="svg-icon" alt="O bomb"/>, can take an unoccupied square, appears as a normal
+                    tile to your opponent. As &nbsp;your next turn, all adjacent tiles are removed and it is your opponent&#39;s
+                    turn again. &nbsp;Removed tiles are returned to their owner&#39;s &#39;deck&#39;.</span></p>
+            <p class="c0 c3"><span class="c1"></span></p>
+            <p class="c0"><span class="c1">You start with a deck of tiles, shuffled, with &#39;HIT&#39; being rare and
+                    &#39;POW&#39; being more rare. &nbsp;You hold three tiles in your hand, choose which one to play, and you
+                    are dealt another tile each time you place one on the board. &nbsp;Tiles returned by &#39;HIT&#39; or
+                    &#39;POW&#39; are returned to the bottom of the owner&#39;s deck.</span></p>
+            <p class="c0 c3"><span class="c1"></span></p>
+            <p class="c0"><span class="c1">Click the tile from your hand that you want to place. &nbsp;Then Click the square you
+                    want to play it in.</span></p>
+            <p class="c0 c3"><span class="c1"></span></p>
+            <p class="c0"><span class="c1">(optional) on &#39;X&#39;s first move, they can choose a starter board, which plays
+                    the first several opening rounds automatically in a typical fashion.</span></p>
+            <p class="c0 c3"><span class="c1"></span></p>
+            <p class="c0"><span class="c1">&copy; 2020 Craig Llewellyn Dempsey</span></p>
+        </div> <!-- info-->
+    </div> <!--wrapper-3 end-->
+    <script src="index.js"></script>
     </body>
 </html>
