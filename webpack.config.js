@@ -1,6 +1,7 @@
 const path = require('path');
 // const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -17,21 +18,27 @@ module.exports = {
       hot: true,
   },
   plugins: [
-    // new HtmlWebpackPlugin({
-    //   title: 'Hot Module Replacement',
-    // })
-    // ,
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+    })
+    ,
     new MiniCssExtractPlugin({
       filename: './style.css'
     })
   ],
   output: {
-    filename: 'main.js',
+    filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
   },
   module: {
     rules: [
+      {
+          test: /\.html$/,
+          use: [
+              { loader: 'html-loader' }
+          ]
+      },
         {
         test: /\.css/,
         use: [
