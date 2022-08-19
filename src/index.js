@@ -410,7 +410,7 @@ function chooseSquare(event) {
             bombPlaced = true;
             console.log(bombPlaced);
         }
-        else if (square.classList[1] !== 'occupied' && cardVal !== '3' ) {
+        else if ( (square.classList[1] !== 'occupied' && cardVal !== '3') || cardVal ==='2' ) {
             sendMove(cardVal, squareId);
             card.parentNode.removeChild(card);
         }
