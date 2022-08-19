@@ -146,6 +146,7 @@ let gameOn = false;
 let myTurn = false;
 
 let playerList = [];
+let winning = {status:  false};
 let myNum = null;
 
 // let cards = [];
@@ -245,6 +246,11 @@ function handleGameMessages(message) {
         case 'win':
             message.text = message.data
             updateMessagesList(message);
+            winning = {
+                status: true,
+                winnerName: message.data.split(' ')[0],
+                cb: undefined
+            };
             break;
         case 'goodbye':
             myNum = null;
@@ -254,12 +260,19 @@ function handleGameMessages(message) {
             playerList = [];
             break;
         case 'reset':
-            myNum = null;
-            gameOn = false;
-            updateBoard(message.data);
-            updateAvtArea('reset');
-            updateOppArea('reset');
-            playerList = [];
+            let delayReset = () => {
+                myNum = null;
+                gameOn = false;
+                winning = {status: false};
+                updateBoard(message.data);
+                updateAvtArea('reset');
+                updateOppArea('reset');
+                playerList = [];
+            }
+            if (!winning.status) { delayReset() } else {
+                winning.cb = delayReset;
+                doWinAnimation(winning, message.data);
+            }
             break;
         default:
             break;
@@ -508,4 +521,23 @@ function toggleInfo () {
 
 InfoButton.addEventListener('click', toggleInfo);
 InfoPanel.addEventListener('click', toggleInfo);
+
+function doWinAnimation(winning, boardArr) {
+    let winner = playerList.indexOf(winning.winnerName);
+    let interval = 200;
+    let promise = Promise.resolve();
+
+    boardArr.forEach((r,i)=> r.forEach((s,j)=>{
+        promise = promise.then(()=>{
+            let idx = 's-'+String(i)+String(j);
+            let square = document.getElementById(`${idx}`);
+            square.className = 'square';
+            square.classList.add('occupied', `color${winner+1}`);
+            return new Promise((resolve) => {
+                setTimeout(resolve, interval);
+            })
+        })
+    }))
+    promise.then(winning.cb);
+}
 
