@@ -270,16 +270,22 @@ button {
     grid-template-rows: 1em 1fr;
     grid-template-columns: 0.5em 1fr 0.5em;
     /* border: 4px solid yellowgreen; */
-    background-color: lightslategray;
+    background-color: #aaeeaa;
     transition: top 1s ease 0s;
     padding-bottom: calc(1em + env(safe-area-inset-bottom));
 }
 
+.is-self {
+    border: 2px solid white;
+    border-radius: 5px;
+    padding: 4px;
+}
+
 .drawer-open {
-    top: 0;
+    bottom: 0;
 }
 .drawer-closed {
-    top: 95vh;
+    bottom: -95vh;
 }
 
 .room-chat-area {
@@ -323,12 +329,28 @@ button {
     pointer-events: none;
 }
 
+.change-handle {
+    pointer-events: none;
+}
+
+input[type="text"] {
+    font-size: 16px;
+    border: none;
+    border-bottom: 2px solid #008000;
+    font-family: inherit;
+    color: green;
+}
+
+.click-closes {
+    pointer-events: none;
+}
+
 .info {
     background-color: white;
-    padding: 0.5em;
     opacity: 0%;
     transition: opacity 1s ease-in-out;
-    height: 100%;
+    padding: 0.5em;
+    pointer-events: none;
 }
 
 .info.hide {
@@ -338,16 +360,14 @@ button {
 .info.show {
     opacity: 100%;
     top: 0;
-    pointer-events: auto;
-}
-
-.info.height-0 {
-    height: 0px;
-    top: -100vh;
 }
 
 .info p {
     padding: 0.2em;
+}
+
+.p-e-auto {
+    pointer-events: auto;
 }
 
 .bubble {

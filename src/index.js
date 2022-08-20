@@ -3,6 +3,7 @@
 let connection;
 let clientId = 'anon';
 let clientList_cache = [];
+let aliases = {};
 
 // need exception handled
 function connect () {
@@ -73,7 +74,7 @@ function handleMessages (data) {
             break;
         case 'goodbye':
             handleGameMessages(message);
-            RoomStatus.innerHTML = `RELOAD BROWSER`;
+            RoomStatus.innerHTML = `RELOAD PAGE`;
             break;
         case 'clients':
             updateClientList(message);
@@ -103,22 +104,54 @@ function handleMessages (data) {
 
 function updateMessagesList(message) {
     let new_message = document.createElement('li');
-    new_message.innerHTML = `<span>${message.sender}: ${message.text}</span>`;
+    let displayName = aliases[message.sender] ?? message.sender;
+    new_message.innerHTML = `<span>${displayName}: ${message.text}</span>`;
     MessagesList.prepend(new_message);
     // scroll to bottom after timer goes off
 }
 
-const clientHandle = function (id) {
-    let printHandle = (id !== clientId) ? `<li>${id}</li>` : `<li>${id} (you)</li>`;
-    return printHandle;
-};
+///changeHandle controls
+
+const ChangeHandle = document.getElementsByClassName('change-handle')[0];
+const LabelChangeHandle = ChangeHandle.querySelector('label');
+LabelChangeHandle.innerText = `${clientId} new name:`;
+
+ChangeHandle.onsubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const formObj = Object.fromEntries(formData);
+    handleNewName(clientId, formObj.newName)
+}
 
 function updateClientList(message) {
     if (clientId === 'anon') {
         clientList_cache = message;
     }
-    let new_list = message.list.map( id => clientHandle(id) ).join('');
-    RoomList.innerHTML = new_list;
+    if (Object.keys(message.aliases).length) {
+        aliases = message.aliases;
+        if (playerList.length) {
+            playerList.forEach((cid,i) => {
+                if (!i && aliases[cid]) {updateAvtArea('join',{player: aliases[cid], playerNum: i+1})}
+                if (i && aliases[cid]) {updateOppArea('join',{player: aliases[cid], playerNum: i+1})}
+            })
+        }
+    }
+    while (RoomList.firstChild) {
+        RoomList.removeChild(RoomList.firstChild);
+    }
+    message.list.forEach(id => {
+        let el = document.createElement('li');
+        let displayName = aliases[id] ?? id;
+        if (id === clientId) {
+            el.addEventListener('click', toggleInfo);
+            el.className = 'is-self';
+            el.innerText = `${displayName} (you)`;
+            LabelChangeHandle.innerText = `${displayName} new name:`;
+        } else {
+            el.innerText = `${displayName}`;
+        }
+        RoomList.append(el);
+    })
     if (message.players.length > 0) {
         // and i am not in it
         if (!message.players.includes(clientId)) {
@@ -126,6 +159,15 @@ function updateClientList(message) {
             handleGameMessages(message);
         }
     }
+}
+
+function handleNewName (clientId,  newName) {
+    let m = {
+        "tag": "rename",
+        "sender": clientId,
+        "text": newName
+    };
+    connection.send(JSON.stringify(m));
 }
 
 function sendPubMessage (event) {
@@ -187,8 +229,8 @@ function handleGameMessages(message) {
         case 'join1':
             playerList.push(message.sender);
             if (message.sender == clientId) {
+                updateAvtArea('join',{player: message.sender,playerNum: 1});
                 myNum = 1;
-                updateAvtArea('join',{player: message.sender,playerNum: myNum});
                 updateAvtArea('my_turn');
             } else {
                 updateOppArea('join',message.sender,1);
@@ -198,10 +240,12 @@ function handleGameMessages(message) {
             playerList.push(message.sender);
             console.log(playerList);
             if (message.sender == clientId) {
+                updateAvtArea('join',{player: message.sender,playerNum: 2});
                 myNum = 2;
-                updateAvtArea('join',{player: message.sender,playerNum: myNum});
-            } else {
+            } else if (myNum === 1) {
                 updateOppArea('join',message.sender,2);
+            } else {
+                updateAvtArea('join',{player: message.sender,playerNum: 2})
             }
             if (playerList[0] === clientId) {
                 let m = {
@@ -282,10 +326,11 @@ function handleGameMessages(message) {
 function updateAvtArea(uType,data) {
     switch (uType) {
         case 'join':
-            avtArea.innerHTML = `<span style="color: ${hexColors[data.playerNum-1]}">${data.player} as ${shapes[data.playerNum-1]}</span>`;
+            let displayName = aliases[data.player] ?? data.player;
+            avtArea.innerHTML = `<span style="color: ${hexColors[data.playerNum-1]}">${displayName} as ${shapes[data.playerNum-1]}</span>`;
             break;
         case 'reject':
-            avtArea.innerHTML = `<span style="color: ${hexColors[data.playerNum-1]}">${data.player} as ${shapes[data.playerNum-1]}</span>`;
+            avtArea.innerHTML = `<span style="color: ${hexColors[data.playerNum-1]}">${displayName} as ${shapes[data.playerNum-1]}</span>`;
             break;
         case 'reset':
             cardContainer = false;
@@ -317,10 +362,11 @@ function updateAvtArea(uType,data) {
 function updateOppArea(uType,player,playerNum) {
     switch (uType) {
         case 'join':
-            oppArea.innerHTML = `<span style="color: ${hexColors[playerNum-1]}">${player} as ${shapes[playerNum-1]}</span>`;
+            let displayName = aliases[player] ?? player;
+            oppArea.innerHTML = `<span style="color: ${hexColors[playerNum-1]}">${displayName} as ${shapes[playerNum-1]}</span>`;
             break;
         case 'other':
-            oppArea.innerHTML = `<span style="color: ${hexColors[playerNum-1]}">${player} as ${shapes[playerNum-1]}</span>`;
+            oppArea.innerHTML = `<span style="color: ${hexColors[playerNum-1]}">${displayName} as ${shapes[playerNum-1]}</span>`;
             break;
         case 'reset':
             oppArea.innerHTML = `<span>waiting for opponent...</span>`;
@@ -472,14 +518,8 @@ function toggleDrawer () {
     let oldState = Wrapper2.classList.contains('drawer-open') ? 'drawer-open' : 'drawer-closed' ;
 
     if (newState === 'drawer-closed') {
-        Wrapper2.addEventListener('transitionend', function () {
-            RoomChatToggle.classList.add('game-mode');
-            RoomChatToggle.innerHTML = 'chat';
-        }, {
-            capture: false,
-            once: true,
-            passive: false
-          });
+        RoomChatToggle.classList.add('game-mode');
+        RoomChatToggle.innerHTML = 'chat';
     } else {
         RoomChatMessage.focus();
     }
@@ -497,20 +537,19 @@ RoomChatToggle.addEventListener('click',toggleDrawer);
 
 let InfoButton = document.getElementsByClassName('info-button')[0];
 let InfoPanel = document.getElementsByClassName('info')[0];
-
+let ClickCloses = document.getElementsByClassName('click-closes')[0]
 
 function toggleInfo () {
-    InfoPanel.classList.remove('height-0');
 
     let newState = InfoPanel.classList.contains('show') ? 'hide' : 'show';
     let oldState = InfoPanel.classList.contains('show') ? 'show' : 'hide';
     
-    if (newState === 'hide') {
-        InfoPanel.addEventListener('transitionend', () => { InfoPanel.classList.add('height-0') }, {
-            capture: false,
-            once: true,
-            passive: false
-          });
+    if (newState === 'show') {
+        ClickCloses.classList.add('p-e-auto');
+        ChangeHandle.classList.add('p-e-auto');
+    } else { 
+        ClickCloses.classList.remove('p-e-auto'); 
+        ChangeHandle.classList.remove('p-e-auto');
     }
 
     InfoPanel.classList.remove(oldState);
@@ -520,7 +559,7 @@ function toggleInfo () {
 }
 
 InfoButton.addEventListener('click', toggleInfo);
-InfoPanel.addEventListener('click', toggleInfo);
+ClickCloses.addEventListener('click', toggleInfo);
 
 function doWinAnimation(winning, boardArr) {
     let winner = playerList.indexOf(winning.winnerName);
@@ -540,4 +579,3 @@ function doWinAnimation(winning, boardArr) {
     }))
     promise.then(winning.cb);
 }
-
